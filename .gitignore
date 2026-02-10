@@ -3,3 +3,4 @@ local_jump/*.zip
 local_jump/*.pkl
 
 __pycache__/
+videos/
