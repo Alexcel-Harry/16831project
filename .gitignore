@@ -1,0 +1,4 @@
+./local_jump/.*.zip
+./local_jump/.*.pkl
+./local_jump/__pycache__/.*
+./__pycache__/.*
