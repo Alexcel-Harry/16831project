@@ -1,35 +1,15 @@
-# =============================================================================
-# random_agent.py — Random Agent Baseline (with Video Recording & CSV Logging)
-# =============================================================================
-#
-# Shows a random agent flailing around in the Humanoid-v5 environment.
-# Logs per-step rewards to a CSV for later analysis / plotting.
-#
-# Usage:
-#   python random_agent.py               # Live view (Human mode)
-#   python random_agent.py --record      # Save video to ./videos/random (No live view)
-#   python random_agent.py --steps 1000  # Run for longer
-#
-# Outputs:
-#   log.csv — one row per step with columns:
-#       step, episode, reward, cumulative_reward, z, vz, airborne
-#
-# Requirements:
-#   pip install gymnasium[mujoco] moviepy
-# =============================================================================
-
 import argparse
 import csv
 import time
 import os
 import gymnasium as gym
-from jump_env import JumpRewardWrapper, STANDING_Z
+from backflip_env import BackflipRewardWrapper, STANDING_Z
 
 LOG_FILE = "log.csv"
 LOG_FIELDS = ["step", "episode", "reward", "cumulative_reward", "z", "vz", "airborne"]
 
 def run_random(max_steps=500, render=True, record=False, seed=42):
-    # ── 1. Configure Render Mode ──
+    
     if record:
         render_mode = "rgb_array"
         print(f"\n[INFO] Video recording enabled. Mode set to 'rgb_array'.")
@@ -39,10 +19,8 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
     else:
         render_mode = None
 
-    # ── 2. Create Environment ──
     raw_env = gym.make("Humanoid-v5", render_mode=render_mode, terminate_when_unhealthy=False)
 
-    # ── 3. Attach Video Recorder (Optional) ──
     if record:
         raw_env = gym.wrappers.RecordVideo(
             raw_env,
@@ -52,7 +30,6 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
             disable_logger=False
         )
 
-    # ── 4. Use raw env (no JumpRewardWrapper termination) ──
     env = raw_env
 
     print(f"{'='*70}")
@@ -60,7 +37,6 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
     print(f"  Steps: {max_steps}   Recording: {'ON' if record else 'OFF'}")
     print(f"{'='*70}\n")
 
-    # ── 5. Open CSV log ──
     csv_file = open(LOG_FILE, "w", newline="")
     writer = csv.DictWriter(csv_file, fieldnames=LOG_FIELDS)
     writer.writeheader()
@@ -96,7 +72,6 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
         if info.get("reward_breakdown", {}).get("posture", 0) < 0:
             notes = "FELL"
 
-        # ── Write row to CSV (every step) ──
         writer.writerow({
             "step":              step,
             "episode":           episode,
@@ -107,7 +82,6 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
             "airborne":          int(air),
         })
 
-        # Logging to console
         if step % 10 == 0 or air or terminated:
             flag = "✓" if air else " "
             print(
@@ -115,7 +89,6 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
                 f"{reward:>7.3f} {cumulative:>8.2f} │ {notes}"
             )
 
-        # Handle Episode End
         if terminated or truncated:
             reason = "terminated" if terminated else "truncated"
             print(f"\n  ── Episode {episode} ended ({reason}) at step {step} ──")
@@ -137,7 +110,6 @@ def run_random(max_steps=500, render=True, record=False, seed=42):
 
     csv_file.close()
 
-    # ── Summary ──
     print(f"\n{'='*70}")
     print(f"  SUMMARY")
     print(f"  Total steps:   {max_steps}")

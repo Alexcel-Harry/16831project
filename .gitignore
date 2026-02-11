@@ -4,3 +4,5 @@ local_jump/*.pkl
 
 __pycache__/
 videos/
+*.csv   
+*.png
