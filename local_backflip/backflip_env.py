@@ -319,8 +319,7 @@ class BackflipRewardWrapper(gym.Wrapper):
 
         # ── rotation tracking ──
         if airborne:
-            dt = (self.unwrapped.model.opt.timestep
-                  * self.unwrapped.model.opt.nsubsteps)
+            dt = self.unwrapped.dt  # Gymnasium natively handles timestep * frame_skip here
             self.cumulative_pitch += angular_vel_y * dt
         self.prev_pitch = quat_to_pitch(quat)
 
